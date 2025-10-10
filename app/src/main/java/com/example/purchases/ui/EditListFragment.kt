@@ -9,11 +9,12 @@ import androidx.navigation.fragment.findNavController
 import com.example.purchases.R
 import com.example.purchases.databinding.EditListLayoutBinding
 
-class EditListFragment: Fragment() {
+class EditListFragment : Fragment() {
     private var _binding: EditListLayoutBinding? = null
 
-    private val binding get() = _binding
-        ?: throw IllegalStateException("Binding for FragmentEditListBinding must not be null")
+    private val binding
+        get() = _binding
+            ?: throw IllegalStateException("Binding for FragmentEditListBinding must not be null")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,13 +31,9 @@ class EditListFragment: Fragment() {
         binding.buttonEditScreen.setOnClickListener { findNavController().navigate(R.id.action_edit_to_main) }
 
         binding.textView.setText(R.string.edit_screen)
-
-
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
     }
-
-
 }
