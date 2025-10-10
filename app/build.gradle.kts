@@ -7,6 +7,10 @@ plugins {
 }
 
 android {
+
+    buildFeatures {
+        viewBinding = true
+    }
     namespace = "com.example.purchases"
     compileSdk = 36
 
@@ -42,6 +46,7 @@ android {
 }
 
 dependencies {
+
 
     implementation(libs.material)
     implementation(libs.kotlinx.coroutines.core)
