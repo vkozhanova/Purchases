@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Purchases</string>
+    <string name="main_screen">Главный экран</string>
+    <string name="edit_screen">Создание/Редактирование</string>
+    <string name="edit_button">Перейти к редактированию</string>
+    <string name="back_to_main_button">Вернуться на главный экран</string>
+
 </resources>
