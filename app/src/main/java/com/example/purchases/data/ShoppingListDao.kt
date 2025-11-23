@@ -14,7 +14,7 @@ interface ShoppingListDao{
     fun getAllLists(): Flow<List<ShoppingList>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertList(list: ShoppingList)
+    suspend fun insertList(list: ShoppingList): Long
 
     @Delete
     suspend fun deleteList(list: ShoppingList)

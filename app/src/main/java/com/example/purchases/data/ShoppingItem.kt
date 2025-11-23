@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 @Entity(tableName = "items")
 @Serializable
 data class ShoppingItem(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(name = "list_id") val listId: Int,
     @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "is_checked") val isChecked: Boolean = false
     )
