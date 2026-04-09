@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purchases.data.ShoppingList
+import com.example.purchases.ui.components.ShoppingList
 import com.example.purchases.repository.ShoppingRepository
 import kotlinx.coroutines.launch
 
@@ -20,9 +20,9 @@ class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
 
     private fun loadShoppingLists() {
         viewModelScope.launch {
-            val lists = repository.getAllLists()
-            _shoppingLists.value = lists as List<ShoppingList>?
-
+            repository.getAllLists().collect { lists ->
+                _shoppingLists.value = lists
+            }
         }
     }
 
@@ -35,25 +35,28 @@ class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
 
     fun copyList(shoppingList: ShoppingList) {
         viewModelScope.launch {
-            val copiedList = shoppingList.copy(id = 0,
-                name = shoppingList.name + " (копия)")
+            val copiedList = shoppingList.copy(id = 0, name = shoppingList.name + " (копия)")
 
             val copiedListId = repository.insertList(copiedList).toInt()
 
-           repository.getAllItems().collect { allItems ->
+            repository.getAllItems().collect { allItems ->
+                val itemsOfThisList = allItems.filter { it.listId == shoppingList.id }
 
-               val itemsOfThisList = allItems.filter { it.listId == shoppingList.id }
+                itemsOfThisList.forEach { item ->
+                    val copiedItem = item.copy(id = 0, listId = copiedListId)
+                    repository.insertItem(copiedItem)
+                }
+            }
 
-               itemsOfThisList.forEach { item ->
-                   val copiedItem = item.copy(id = 0,
-                       listId = copiedListId
-                   )
-                   repository.insertItem(copiedItem)
-               }
-               return@collect
-           }
-
+            loadShoppingLists()
         }
-        loadShoppingLists()
+    }
+
+    fun createNewList() {
+        viewModelScope.launch {
+            val newList = ShoppingList(id = 0, name = "Новый список")
+            repository.insertList(newList)
+            loadShoppingLists()
+        }
     }
 }

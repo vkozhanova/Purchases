@@ -1,9 +1,13 @@
-package com.example.purchases.data
+package com.example.purchases.repository
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.Room
+import com.example.purchases.ui.components.ShoppingItem
+import com.example.purchases.data.model.ShoppingItemDao
+import com.example.purchases.ui.components.ShoppingList
+import com.example.purchases.data.model.ShoppingListDao
 
 @Database(
     entities = [ShoppingItem::class, ShoppingList::class],
