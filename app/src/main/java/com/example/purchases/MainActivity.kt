@@ -1,33 +1,28 @@
 package com.example.purchases
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import com.example.purchases.databinding.ActivityMainBinding
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.core.view.WindowCompat
+import com.example.purchases.repository.AppDatabase
+import com.example.purchases.repository.ShoppingRepository
+import com.example.purchases.viewmodel.MainViewModel
 
-
-class MainActivity : AppCompatActivity() {
-
-    private var _binding: ActivityMainBinding? = null
-
-    private val binding get() = _binding!!
-
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        _binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-    }
+        val database = AppDatabase.getDatabase(this)
+        val repository = ShoppingRepository(
+            itemDao = database.shoppingItemDao(),
+            listDao = database.shoppingListDao()
+        )
 
+        val viewModel = MainViewModel(repository)
 
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
+        setContent {
+            PurchaseApp(viewModel = viewModel)
+        }
     }
 }

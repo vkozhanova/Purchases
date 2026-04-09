@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     kotlin("plugin.serialization")
+    id("com.google.dagger.hilt.android") version "2.47" apply false
 }
 
 android {
@@ -55,6 +56,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
     implementation(libs.androidx.core.ktx)
@@ -72,4 +75,11 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Hilt core
+    implementation("com.google.dagger:hilt-android:2.47")
+    ksp("com.google.dagger:hilt-android-compiler:2.47")
+
+// Hilt + Jetpack Compose integration
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
 }

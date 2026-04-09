@@ -1,9 +1,9 @@
 package com.example.purchases.repository
 
-import com.example.purchases.data.ShoppingItem
-import com.example.purchases.data.ShoppingItemDao
-import com.example.purchases.data.ShoppingList
-import com.example.purchases.data.ShoppingListDao
+import com.example.purchases.ui.components.ShoppingItem
+import com.example.purchases.data.model.ShoppingItemDao
+import com.example.purchases.ui.components.ShoppingList
+import com.example.purchases.data.model.ShoppingListDao
 import kotlinx.coroutines.flow.Flow
 
 class ShoppingRepository(

@@ -1,4 +1,4 @@
-package com.example.purchases.data
+package com.example.purchases.ui.components
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
