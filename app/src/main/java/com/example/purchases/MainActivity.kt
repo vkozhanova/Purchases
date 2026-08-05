@@ -5,7 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import com.example.purchases.repository.AppDatabase
-import com.example.purchases.repository.ShoppingRepository
+import com.example.purchases.repository.ShoppingRepositoryImpl
+import com.example.purchases.ui.PurchaseAppTheme
 import com.example.purchases.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
@@ -14,7 +15,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val database = AppDatabase.getDatabase(this)
-        val repository = ShoppingRepository(
+        val repository = ShoppingRepositoryImpl(
             itemDao = database.shoppingItemDao(),
             listDao = database.shoppingListDao()
         )
@@ -22,7 +23,9 @@ class MainActivity : ComponentActivity() {
         val viewModel = MainViewModel(repository)
 
         setContent {
-            PurchaseApp(viewModel = viewModel)
+            PurchaseAppTheme {
+                PurchaseApp(viewModel = viewModel)
+            }
         }
     }
 }

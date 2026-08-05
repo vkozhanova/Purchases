@@ -1,5 +1,6 @@
 package com.example.purchases
 
+import AllListsScreen
 import android.annotation.SuppressLint
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -7,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.purchases.ui.AllListsScreen
 import com.example.purchases.ui.EditListScreen
 import com.example.purchases.viewmodel.MainViewModel
 

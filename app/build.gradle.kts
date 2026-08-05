@@ -49,6 +49,7 @@ android {
 dependencies {
 
 
+    implementation(libs.androidx.material3)
     implementation(libs.material)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.navigation.fragment)
@@ -75,6 +76,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
 
     // Hilt core
     implementation("com.google.dagger:hilt-android:2.47")

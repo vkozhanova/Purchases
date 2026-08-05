@@ -12,4 +12,4 @@ data class ShoppingItem(
     @ColumnInfo(name = "list_id") val listId: Int,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "is_checked") val isChecked: Boolean = false
-    )
+)

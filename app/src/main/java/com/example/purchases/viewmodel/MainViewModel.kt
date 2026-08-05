@@ -1,62 +1,77 @@
 package com.example.purchases.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.purchases.ShoppingListsUiState
 import com.example.purchases.ui.components.ShoppingList
 import com.example.purchases.repository.ShoppingRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
 
-    private val _shoppingLists = MutableLiveData<List<ShoppingList>>()
-    val shoppingList: LiveData<List<ShoppingList>>
-        get() = _shoppingLists
+    private val _uiState = MutableStateFlow(ShoppingListsUiState(isLoading = true))
+    val uiState: StateFlow<ShoppingListsUiState> = _uiState.asStateFlow()
 
-    init {
+    init{
         loadShoppingLists()
     }
 
     private fun loadShoppingLists() {
         viewModelScope.launch {
-            repository.getAllLists().collect { lists ->
-                _shoppingLists.value = lists
-            }
+            repository.getAllLists()
+                .catch { e ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = e.message
+                        )
+                    }
+                }
+                .collect { lists ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            lists = lists,
+                            error = null
+                        )
+                    }
+                }
         }
     }
-
-    fun deleteList(shoppingList: ShoppingList) {
+    fun deleteList(list: ShoppingList) {
         viewModelScope.launch {
-            repository.deleteList(shoppingList)
-            loadShoppingLists()
+            repository.deleteList(list)
         }
     }
 
     fun copyList(shoppingList: ShoppingList) {
         viewModelScope.launch {
             val copiedList = shoppingList.copy(id = 0, name = shoppingList.name + " (копия)")
+            val copyListId = repository.insertList(copiedList).toInt()
 
-            val copiedListId = repository.insertList(copiedList).toInt()
+            val itemsCurrentList = repository.getItemsForList(shoppingList.id).first()
 
-            repository.getAllItems().collect { allItems ->
-                val itemsOfThisList = allItems.filter { it.listId == shoppingList.id }
-
-                itemsOfThisList.forEach { item ->
-                    val copiedItem = item.copy(id = 0, listId = copiedListId)
-                    repository.insertItem(copiedItem)
-                }
+            itemsCurrentList.forEach { item ->
+                repository.insertItem(item.copy(id = 0, listId = copyListId))
             }
-
-            loadShoppingLists()
         }
     }
 
     fun createNewList() {
         viewModelScope.launch {
-            val newList = ShoppingList(id = 0, name = "Новый список")
-            repository.insertList(newList)
-            loadShoppingLists()
+            repository.insertList(ShoppingList(name = "Новый список"))
+        }
+    }
+
+    fun renameList(shoppingList: ShoppingList, newName: String) {
+        viewModelScope.launch {
+            repository.insertList(shoppingList.copy(name = newName))
         }
     }
 }
