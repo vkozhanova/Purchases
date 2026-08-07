@@ -8,14 +8,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.purchases.repository.ShoppingRepository
 import com.example.purchases.ui.EditListScreen
+import com.example.purchases.ui.components.ShoppingList
 import com.example.purchases.viewmodel.MainViewModel
+import com.example.purchases.viewmodel.ShoppingListViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun PurchaseApp(viewModel: MainViewModel) {
+fun PurchaseApp(
+    viewModel: MainViewModel,
+    repository: ShoppingRepository,
+) {
     var currentScreen by remember { mutableStateOf(ScreenId.ALL_LISTS) }
-    var selectedListId by remember { mutableStateOf<Int?>(null) }
+    var selectedList by remember { mutableStateOf<ShoppingList?>(null) }
 
 
     Scaffold { paddingValues ->
@@ -23,17 +29,24 @@ fun PurchaseApp(viewModel: MainViewModel) {
             ScreenId.ALL_LISTS -> {
                 AllListsScreen(
                     viewModel = viewModel,
-                    onListClick = { list -> selectedListId = list.id },
+                    onListClick = { list ->
+                        selectedList = list
+                        currentScreen = ScreenId.EDIT
+                    },
                 )
             }
 
             ScreenId.EDIT -> {
-                val listId = selectedListId ?: run {
+                val list = selectedList ?: run {
                     currentScreen = ScreenId.ALL_LISTS
                     return@Scaffold
                 }
+                val listViewModel = remember(list.id) {
+                    ShoppingListViewModel(repository, list.id)
+                }
                 EditListScreen(
-                    listId = listId,
+                    viewModel = listViewModel,
+                    listName = list.name,
                     onBackClick = { currentScreen = ScreenId.ALL_LISTS }
                 )
             }

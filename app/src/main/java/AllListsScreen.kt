@@ -1,4 +1,5 @@
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
@@ -48,8 +49,6 @@ import com.example.purchases.ShoppingListsUiState
 import com.example.purchases.ui.PurchaseAppTheme
 import com.example.purchases.ui.purchaseAppTypography
 
-
-//сделать редактирование списка
 @Composable
 fun AllListsScreen(
     viewModel: MainViewModel,
@@ -165,15 +164,17 @@ fun ShoppingListItem(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(12.dp)
+            )
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = {menuExpanded = true}
             ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.primary
         ),
-        elevation = CardDefaults.cardElevation(4.dp),
-        onClick = { menuExpanded = true },
-
+        elevation = CardDefaults.cardElevation(4.dp)
         ) {
         Row(
             modifier = Modifier
@@ -291,7 +292,6 @@ fun AllListScreenPreview() {
             ShoppingList(1, ""),
             ShoppingList(2, "02"),
             ShoppingList(3, "03"),
-
             )
         AllListsScreenContent(
             uiState = ShoppingListsUiState(lists = shoppingLists),
