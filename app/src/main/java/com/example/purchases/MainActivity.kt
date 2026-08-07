@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PurchaseAppTheme {
-                PurchaseApp(viewModel = viewModel)
+                PurchaseApp(viewModel = viewModel, repository = repository)
             }
         }
     }
