@@ -1,22 +1,24 @@
-package com.example.purchases.ui
+package com.example.purchases.features.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -27,8 +29,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,18 +38,21 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.purchases.ShoppingItemsUiState
-import com.example.purchases.ui.components.ShoppingItem
-import com.example.purchases.viewmodel.ShoppingListViewModel
+import com.example.purchases.features.items.presentation.model.ShoppingItemsUiState
+import com.example.purchases.features.ui.components.ShoppingItem
+import com.example.purchases.features.items.presentation.ShoppingListViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditListScreen(
@@ -83,6 +86,23 @@ fun EditListScreenContent(
     onRename: (ShoppingItem, String) -> Unit,
     onToggleChecked: (ShoppingItem) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    var previousSize by remember { mutableStateOf(uiState.items.size) }
+
+    LaunchedEffect(uiState.items.size) {
+        val currentSize = uiState.items.size
+        when {
+            currentSize > previousSize && currentSize > 0 -> {
+                listState.animateScrollToItem(currentSize - 1)
+            }
+            previousSize == 0 && currentSize > 0 -> {
+                listState.animateScrollToItem(0)
+            }
+        }
+        previousSize = currentSize
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
@@ -100,19 +120,33 @@ fun EditListScreenContent(
                             contentDescription = "Назад"
                         )
                     }
+                },
+                actions = {
+                    if (uiState.items.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(0)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowUp,
+                                contentDescription = "Вверх"
+                            )
+                        }
+                    }
+                    IconButton(
+                        onClick = onAddClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = "Добавить"
+                        )
+                    }
                 }
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.background
-            ) {
-                Icon(Icons.Rounded.Add, contentDescription = "Добавить")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
     ) { paddingValues ->
         when {
             uiState.isLoading -> {
@@ -134,14 +168,13 @@ fun EditListScreenContent(
                         .fillMaxSize()
                 )
             }
-
             else -> {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
                             top = paddingValues.calculateTopPadding(),
-                            bottom = paddingValues.calculateBottomPadding() + 20.dp,
+                            bottom = paddingValues.calculateBottomPadding()  +8.dp,
                             start = 20.dp,
                             end = 20.dp
                         )
@@ -151,20 +184,27 @@ fun EditListScreenContent(
                         )
                 ) {
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(vertical = 8.dp)
+//                        contentPadding = PaddingValues(top = 4.dp, bottom = 4.dp)
                     ) {
                         itemsIndexed(
                             items = uiState.items,
                             key = { _, item -> item.id }
                         ) { index, item ->
+                            val itemModifier = if (index < uiState.items.size - 1) {
+                                Modifier.padding(bottom = 2.dp)
+                            } else {
+                                Modifier
+                            }
                             ShoppingItemRow(
                                 item = item,
                                 index = index + 1,
                                 onToggleChecked = { onToggleChecked(item) },
                                 onDelete = { onDeleteClick(item) },
                                 onCopy = { onCopyClick(item) },
-                                onRename = { newName -> onRename(item, newName) }
+                                onRename = { newName -> onRename(item, newName) },
+                                modifier = itemModifier
                             )
                             if (index < uiState.items.size - 1) {
                                 Divider(
@@ -199,6 +239,7 @@ fun ShoppingItemRow(
     onDelete: () -> Unit,
     onCopy: () -> Unit,
     onRename: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var showRenameDialog by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf(item.name) }
@@ -207,6 +248,7 @@ fun ShoppingItemRow(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
     ) {
         if (item.isChecked) {
             Box(
@@ -224,13 +266,13 @@ fun ShoppingItemRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { menuExpanded = true }
-                .padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
+                .padding(start = 16.dp, end = 4.dp, top = 0.dp, bottom = 0.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${index}.",
-                style = purchaseAppTypography.titleMedium,
+                text = index.toString(),
+                style = purchaseAppTypography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .width(20.dp)
@@ -238,7 +280,7 @@ fun ShoppingItemRow(
             )
             Text(
                 text = item.name,
-                style = MaterialTheme.typography.displayLarge,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .weight(1f)
@@ -263,31 +305,43 @@ fun ShoppingItemRow(
                 )
             }
         }
-    }
-    DropdownMenu(
-        expanded = menuExpanded,
-        onDismissRequest = { menuExpanded = false },
-        containerColor = MaterialTheme.colorScheme.background
-    ) {
-        DropdownMenuItem(
-            text = { Text("Удалить") },
-            onClick = {
-                onDelete()
-                menuExpanded = false
-            }
-        )
-        DropdownMenuItem(
-            text = { Text("Копировать") },
-            onClick = {
-                onCopy()
-                menuExpanded = false
-            }
-        )
+        DropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false },
+            containerColor = MaterialTheme.colorScheme.background
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = "Удалить",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                },
+                onClick = {
+                    onDelete()
+                    menuExpanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = "Копировать",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                },
+                onClick = {
+                    onCopy()
+                    menuExpanded = false
+                }
+            )
+        }
     }
 
     if (showRenameDialog) {
         AlertDialog(
             onDismissRequest = { showRenameDialog = false },
+            containerColor = MaterialTheme.colorScheme.background,
+            textContentColor = MaterialTheme.colorScheme.background,
             title = { Text(text = "Изменить название") },
             text = {
                 TextField(

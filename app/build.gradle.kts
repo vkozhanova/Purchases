@@ -49,6 +49,7 @@ android {
 dependencies {
 
 
+    implementation(libs.androidx.foundation)
     implementation(libs.androidx.material3)
     implementation(libs.material)
     implementation(libs.kotlinx.coroutines.core)

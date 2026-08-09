@@ -1,11 +1,11 @@
-package com.example.purchases.data.model
+package com.example.purchases.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.purchases.ui.components.ShoppingList
+import com.example.purchases.features.ui.components.ShoppingList
 import kotlinx.coroutines.flow.Flow
 
 @Dao

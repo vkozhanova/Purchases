@@ -1,10 +1,10 @@
-package com.example.purchases.viewmodel
+package com.example.purchases.features.lists.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purchases.ShoppingListsUiState
-import com.example.purchases.ui.components.ShoppingList
-import com.example.purchases.repository.ShoppingRepository
+import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
+import com.example.purchases.data.database.repository.ShoppingRepository
+import com.example.purchases.features.ui.components.ShoppingList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

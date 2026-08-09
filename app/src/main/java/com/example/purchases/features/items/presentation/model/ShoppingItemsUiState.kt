@@ -1,6 +1,6 @@
-package com.example.purchases
+package com.example.purchases.features.items.presentation.model
 
-import com.example.purchases.ui.components.ShoppingItem
+import com.example.purchases.features.ui.components.ShoppingItem
 
 class ShoppingItemsUiState(
     val isLoading: Boolean = false,
