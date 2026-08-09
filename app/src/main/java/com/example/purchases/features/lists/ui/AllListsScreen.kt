@@ -1,3 +1,5 @@
+package com.example.purchases.features.lists.ui
+
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
@@ -25,8 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.purchases.ui.components.ShoppingList
-import com.example.purchases.viewmodel.MainViewModel
+import com.example.purchases.features.ui.components.ShoppingList
+import com.example.purchases.features.lists.presentation.MainViewModel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,12 +45,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
-import com.example.purchases.ShoppingListsUiState
-import com.example.purchases.ui.PurchaseAppTheme
-import com.example.purchases.ui.purchaseAppTypography
+import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
+import com.example.purchases.features.ui.PurchaseAppTheme
+import com.example.purchases.features.ui.purchaseAppTypography
 
 @Composable
 fun AllListsScreen(
@@ -75,6 +79,17 @@ fun AllListsScreenContent(
     onCopyClick: (ShoppingList) -> Unit,
     onRename: (ShoppingList, String) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+    var previousSize by remember { mutableStateOf(uiState.lists.size) }
+
+    LaunchedEffect(uiState.lists.size) {
+        val currentSize = uiState.lists.size
+        if (currentSize > previousSize && currentSize > 0) {
+            listState.animateScrollToItem(index = currentSize - 1)
+        }
+        previousSize = currentSize
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -110,13 +125,14 @@ fun AllListsScreenContent(
 
             else -> {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.padding(
                         top = paddingValues.calculateTopPadding(),
                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                         end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                         bottom = 0.dp
                     ),
-                    contentPadding = PaddingValues(bottom = 16.dp)
+                    contentPadding = PaddingValues(bottom = 160.dp)
                 ) {
                     items(uiState.lists) { list ->
                         ShoppingListItem(
@@ -138,7 +154,7 @@ fun AllListsScreenContent(
 fun EmptyState(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         Text(
-            text = "No items available",
+            text = "Нет доступных списков",
             modifier = Modifier.align(Alignment.Center)
         )
     }
@@ -185,7 +201,7 @@ fun ShoppingListItem(
         ) {
             Text(
                 text = shoppingList.name,
-                style = purchaseAppTypography.titleMedium,
+                style = purchaseAppTypography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             IconButton(

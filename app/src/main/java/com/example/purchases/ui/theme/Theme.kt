@@ -1,4 +1,4 @@
-package com.example.purchases.ui
+package com.example.purchases.features.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme

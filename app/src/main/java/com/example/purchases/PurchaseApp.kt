@@ -1,6 +1,6 @@
 package com.example.purchases
 
-import AllListsScreen
+import com.example.purchases.features.lists.ui.AllListsScreen
 import android.annotation.SuppressLint
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -8,11 +8,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.purchases.repository.ShoppingRepository
-import com.example.purchases.ui.EditListScreen
-import com.example.purchases.ui.components.ShoppingList
-import com.example.purchases.viewmodel.MainViewModel
-import com.example.purchases.viewmodel.ShoppingListViewModel
+import com.example.purchases.core.navigation.ScreenId
+import com.example.purchases.data.database.repository.ShoppingRepository
+import com.example.purchases.features.ui.EditListScreen
+import com.example.purchases.features.ui.components.ShoppingList
+import com.example.purchases.features.lists.presentation.MainViewModel
+import com.example.purchases.features.items.presentation.ShoppingListViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
