@@ -1,5 +1,7 @@
 package com.example.purchases.features.lists.ui
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,17 +10,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,9 +37,11 @@ import com.example.purchases.features.ui.components.ShoppingList
 import com.example.purchases.features.lists.presentation.MainViewModel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
@@ -44,14 +51,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
+import com.example.purchases.data.database.repository.ShoppingRepository
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
 import com.example.purchases.features.ui.PurchaseAppTheme
+import com.example.purchases.features.ui.components.ShoppingItem
 import com.example.purchases.features.ui.purchaseAppTypography
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @Composable
 fun AllListsScreen(
@@ -60,19 +78,30 @@ fun AllListsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val onAddClick = remember { { viewModel.createNewList() } }
+    val onADelete = remember { { list: ShoppingList -> viewModel.deleteList(list) } }
+    val onCopyClick = remember { { list: ShoppingList -> viewModel.copyList(list) } }
+    val onRename =
+        remember { { list: ShoppingList, newName: String -> viewModel.renameList(list, newName) } }
+
+
     AllListsScreenContent(
         uiState = uiState,
-        onAddClick = { viewModel.createNewList() },
+        viewModel = viewModel,
+        onAddClick = onAddClick,
         onListClick = onListClick,
-        onDeleteClick = { viewModel.deleteList(it) },
-        onCopyClick = { viewModel.copyList(it) },
-        onRename = { list, newName -> viewModel.renameList(list, newName) }
+        onDeleteClick = onADelete,
+        onCopyClick = onCopyClick,
+        onRename = onRename
     )
 }
 
+@SuppressLint("AutoboxingStateCreation")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllListsScreenContent(
     uiState: ShoppingListsUiState,
+    viewModel: MainViewModel,
     onAddClick: () -> Unit,
     onListClick: (ShoppingList) -> Unit,
     onDeleteClick: (ShoppingList) -> Unit,
@@ -80,7 +109,11 @@ fun AllListsScreenContent(
     onRename: (ShoppingList, String) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    var previousSize by remember { mutableStateOf(uiState.lists.size) }
+    var previousSize by remember { mutableIntStateOf(uiState.lists.size) }
+    val coroutineScope = rememberCoroutineScope()
+    var expanded by remember { mutableStateOf(false) }
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val filteredLists by viewModel.filteredLists.collectAsState()
 
     LaunchedEffect(uiState.lists.size) {
         val currentSize = uiState.lists.size
@@ -91,6 +124,43 @@ fun AllListsScreenContent(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Purchases") },
+                actions = {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Default.Search, contentDescription = "Поиск")
+                    }
+                    if (uiState.lists.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(0)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowUp,
+                                contentDescription = "Вверх"
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(uiState.lists.size - 1)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Вниз"
+                            )
+                        }
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddClick,
@@ -102,46 +172,86 @@ fun AllListsScreenContent(
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { paddingValues ->
-        when {
-            uiState.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
+        Column(modifier = Modifier.padding(paddingValues)) {
+            AnimatedVisibility(visible = expanded) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = viewModel::updateSearchQuery,
+                    placeholder = { Text("Поиск...") },
+                    singleLine = true,
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.updateSearchQuery("") }) {
+                                Icon(Icons.Default.Close, contentDescription = "Очистить")
+                            }
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.background,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                        disabledContainerColor = MaterialTheme.colorScheme.background,
 
-            uiState.error != null -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Ошибка: ${uiState.error}")
-                }
-            }
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.primary.copy(alpha = 1f),
 
-            uiState.lists.isEmpty() -> {
-                EmptyState(
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                        disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+
+                        focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                    ),
                     modifier = Modifier
-                        .padding(paddingValues)
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
+            when {
+                uiState.isLoading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
 
-            else -> {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.padding(
-                        top = paddingValues.calculateTopPadding(),
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                        bottom = 0.dp
-                    ),
-                    contentPadding = PaddingValues(bottom = 160.dp)
-                ) {
-                    items(uiState.lists) { list ->
-                        ShoppingListItem(
-                            shoppingList = list,
-                            onClick = { onListClick(list) },
-                            onDelete = { onDeleteClick(list) },
-                            onCopy = { onCopyClick(list) },
-                            onRename = { newName -> onRename(list, newName) }
-                        )
+                uiState.error != null -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Ошибка: ${uiState.error}")
+                    }
+                }
+
+                uiState.lists.isEmpty() -> {
+                    EmptyState(
+                        modifier = Modifier
+                            .padding(paddingValues)
+                            .fillMaxSize(),
+                        message = if (searchQuery.isNotEmpty()) "Ничего не найдено" else "Нет доступных списков"
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 160.dp)
+                    ) {
+                        items(
+                            items = filteredLists,
+                            key = { it.id }
+                        ) { list ->
+                            ShoppingListItem(
+                                shoppingList = list,
+                                onClick = { onListClick(list) },
+                                onDelete = { onDeleteClick(list) },
+                                onCopy = { onCopyClick(list) },
+                                onRename = { newName -> onRename(list, newName) }
+                            )
+                        }
                     }
                 }
             }
@@ -151,10 +261,14 @@ fun AllListsScreenContent(
 
 
 @Composable
-fun EmptyState(modifier: Modifier = Modifier) {
+fun EmptyState(
+    modifier: Modifier = Modifier,
+    message: String = "Нет доступных списков"
+) {
     Box(modifier = modifier) {
         Text(
-            text = "Нет доступных списков",
+            text = message,
+            style = purchaseAppTypography.bodyMedium,
             modifier = Modifier.align(Alignment.Center)
         )
     }
@@ -174,7 +288,7 @@ fun ShoppingListItem(
 
     Card(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(horizontal = 16.dp, vertical = 4.dp)
             .fillMaxWidth()
             .border(
                 width = 1.dp,
@@ -183,7 +297,7 @@ fun ShoppingListItem(
             )
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = {menuExpanded = true}
+                onLongClick = { menuExpanded = true }
             ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -191,11 +305,11 @@ fun ShoppingListItem(
             contentColor = MaterialTheme.colorScheme.primary
         ),
         elevation = CardDefaults.cardElevation(4.dp)
-        ) {
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -230,7 +344,7 @@ fun ShoppingListItem(
                 text = {
                     Text(
                         text = "Удалить",
-                        style = purchaseAppTypography.titleMedium,
+                        style = purchaseAppTypography.bodySmall,
                     )
                 },
                 onClick = {
@@ -246,7 +360,7 @@ fun ShoppingListItem(
                 text = {
                     Text(
                         text = "Копировать",
-                        style = purchaseAppTypography.titleMedium,
+                        style = purchaseAppTypography.bodySmall,
                     )
                 },
                 onClick = {
@@ -299,18 +413,51 @@ fun ShoppingListItem(
     }
 }
 
+// ------------------------------------------------------------
+// Фейковый репозиторий для превью
+// ------------------------------------------------------------
+private class FakeShoppingRepository : ShoppingRepository {
+    private val _lists = MutableStateFlow(
+        listOf(
+            ShoppingList(1, "Продукты"),
+            ShoppingList(2, "Хлеб")
+        )
+    )
+
+    override fun getAllLists(): Flow<List<ShoppingList>> = _lists.asStateFlow()
+    override suspend fun insertList(list: ShoppingList): Long {
+        val newList = list.copy(id = (_lists.value.maxOfOrNull { it.id } ?: 0) + 1)
+        _lists.update { it + newList }
+        return newList.id.toLong()
+    }
+
+    override suspend fun deleteList(list: ShoppingList) {
+        _lists.update { it.filter { it.id != list.id } }
+    }
+
+    override fun getItemsForList(listId: Int): Flow<List<ShoppingItem>> = flow { emit(emptyList()) }
+    override fun getAllItems(): Flow<List<ShoppingItem>> = flow { emit(emptyList()) }
+    override suspend fun insertItem(item: ShoppingItem) = Unit
+    override suspend fun deleteItem(item: ShoppingItem) = Unit
+    override suspend fun updateItem(item: ShoppingItem) = Unit
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun AllListScreenPreview() {
     PurchaseAppTheme {
-        val shoppingLists = listOf(
-            ShoppingList(0, "Продукты"),
-            ShoppingList(1, ""),
-            ShoppingList(2, "02"),
-            ShoppingList(3, "03"),
-            )
+        val fakeRepository = FakeShoppingRepository()
+        val viewModel = MainViewModel(fakeRepository)
         AllListsScreenContent(
-            uiState = ShoppingListsUiState(lists = shoppingLists),
+            uiState = ShoppingListsUiState(
+                isLoading = false,
+                lists = listOf(
+                    ShoppingList(1, "Продукты"),
+                    ShoppingList(2, "Хлеб")
+                )
+            ),
+            viewModel = viewModel,
             onAddClick = {},
             onListClick = {},
             onDeleteClick = {},

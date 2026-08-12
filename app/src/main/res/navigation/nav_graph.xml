@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/editListFragment"
-        android:name="com.example.purchases.features.ui.EditListFragment"
+        android:name="com.example.purchases.ui.EditListFragment"
         android:label="EditListFragment"
         tools:layout="@layout/edit_list_layout">
 

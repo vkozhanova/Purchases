@@ -6,10 +6,13 @@ import com.example.purchases.features.lists.presentation.model.ShoppingListsUiSt
 import com.example.purchases.data.database.repository.ShoppingRepository
 import com.example.purchases.features.ui.components.ShoppingList
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -17,6 +20,25 @@ class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
 
     private val _uiState = MutableStateFlow(ShoppingListsUiState(isLoading = true))
     val uiState: StateFlow<ShoppingListsUiState> = _uiState.asStateFlow()
+
+    private val _allLists = MutableStateFlow<List<ShoppingList>>(emptyList())
+    val allLists: StateFlow<List<ShoppingList>> = _allLists.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    val filteredLists: StateFlow<List<ShoppingList>> = combine(
+        allLists,
+        searchQuery
+    ) {
+        allLists, query ->
+        if(query.isBlank()) allLists
+        else allLists.filter { it.name.contains(query, ignoreCase  = true) }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     init{
         loadShoppingLists()
@@ -34,6 +56,7 @@ class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
                     }
                 }
                 .collect { lists ->
+                    _allLists.value = lists
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -43,6 +66,10 @@ class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
                     }
                 }
         }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
     }
     fun deleteList(list: ShoppingList) {
         viewModelScope.launch {

@@ -1,4 +1,4 @@
-package com.example.purchases.features.ui
+package com.example.purchases.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
