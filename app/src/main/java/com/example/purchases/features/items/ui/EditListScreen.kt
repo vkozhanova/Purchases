@@ -1,13 +1,18 @@
 package com.example.purchases.features.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -16,8 +21,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
@@ -29,6 +36,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +55,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.purchases.features.items.presentation.model.ShoppingItemsUiState
@@ -74,6 +83,7 @@ fun EditListScreen(
     )
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditListScreenContent(
@@ -96,6 +106,7 @@ fun EditListScreenContent(
             currentSize > previousSize && currentSize > 0 -> {
                 listState.animateScrollToItem(currentSize - 1)
             }
+
             previousSize == 0 && currentSize > 0 -> {
                 listState.animateScrollToItem(0)
             }
@@ -116,7 +127,7 @@ fun EditListScreenContent(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Назад"
                         )
                     }
@@ -133,6 +144,18 @@ fun EditListScreenContent(
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowUp,
                                 contentDescription = "Вверх"
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(uiState.items.size - 1)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Вниз"
                             )
                         }
                     }
@@ -168,16 +191,29 @@ fun EditListScreenContent(
                         .fillMaxSize()
                 )
             }
+
             else -> {
+                val configuration = LocalConfiguration.current
+                val screenHeightDp = configuration.screenHeightDp.dp
+
+                val topPadding = paddingValues.calculateTopPadding()
+                val bottomPadding = paddingValues.calculateBottomPadding() + 8.dp
+                val itemHeightEstimate = 48.dp
+
+                val maxListHeight = screenHeightDp - topPadding - bottomPadding - 20.dp + itemHeightEstimate - 4.dp
+
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            top = paddingValues.calculateTopPadding(),
-                            bottom = paddingValues.calculateBottomPadding()  +8.dp,
+                            top = topPadding,
+                            bottom = bottomPadding,
                             start = 20.dp,
                             end = 20.dp
                         )
+                        .heightIn(max = maxListHeight)
+                        .wrapContentHeight()
                         .background(
                             color = MaterialTheme.colorScheme.background,
                             shape = RoundedCornerShape(16.dp)
@@ -185,18 +221,15 @@ fun EditListScreenContent(
                 ) {
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxWidth(),
-//                        contentPadding = PaddingValues(top = 4.dp, bottom = 4.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        contentPadding = PaddingValues(top = 2.dp, bottom = 2.dp)
                     ) {
                         itemsIndexed(
                             items = uiState.items,
                             key = { _, item -> item.id }
                         ) { index, item ->
-                            val itemModifier = if (index < uiState.items.size - 1) {
-                                Modifier.padding(bottom = 2.dp)
-                            } else {
-                                Modifier
-                            }
                             ShoppingItemRow(
                                 item = item,
                                 index = index + 1,
@@ -204,13 +237,13 @@ fun EditListScreenContent(
                                 onDelete = { onDeleteClick(item) },
                                 onCopy = { onCopyClick(item) },
                                 onRename = { newName -> onRename(item, newName) },
-                                modifier = itemModifier
+                                modifier = Modifier.fillMaxWidth()
                             )
                             if (index < uiState.items.size - 1) {
-                                Divider(
-                                    color = MaterialTheme.colorScheme.surface,
+                                HorizontalDivider(
+                                    modifier = Modifier.fillMaxWidth(),
                                     thickness = 1.dp,
-                                    modifier = Modifier.fillMaxWidth()
+                                    color = MaterialTheme.colorScheme.surface
                                 )
                             }
                         }
@@ -244,6 +277,7 @@ fun ShoppingItemRow(
     var showRenameDialog by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf(item.name) }
     var menuExpanded by remember { mutableStateOf(false) }
+    val onRowClick = remember { { menuExpanded = true } }
 
     Box(
         modifier = Modifier
@@ -265,7 +299,7 @@ fun ShoppingItemRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { menuExpanded = true }
+                .clickable(onClick = onRowClick)
                 .padding(start = 16.dp, end = 4.dp, top = 0.dp, bottom = 0.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
@@ -308,6 +342,11 @@ fun ShoppingItemRow(
         DropdownMenu(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false },
+            modifier = Modifier.border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.extraSmall
+            ),
             containerColor = MaterialTheme.colorScheme.background
         ) {
             DropdownMenuItem(

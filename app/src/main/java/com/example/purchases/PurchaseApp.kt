@@ -8,10 +8,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.purchases.core.navigation.ScreenId
+import com.example.purchases.core.navigation.Destination
 import com.example.purchases.data.database.repository.ShoppingRepository
 import com.example.purchases.features.ui.EditListScreen
-import com.example.purchases.features.ui.components.ShoppingList
 import com.example.purchases.features.lists.presentation.MainViewModel
 import com.example.purchases.features.items.presentation.ShoppingListViewModel
 
@@ -21,34 +20,30 @@ fun PurchaseApp(
     viewModel: MainViewModel,
     repository: ShoppingRepository,
 ) {
-    var currentScreen by remember { mutableStateOf(ScreenId.ALL_LISTS) }
-    var selectedList by remember { mutableStateOf<ShoppingList?>(null) }
+    var currentScreen by remember { mutableStateOf<Destination>(Destination.AllLists) }
 
-
-    Scaffold { paddingValues ->
+    Scaffold { _ ->
         when (currentScreen) {
-            ScreenId.ALL_LISTS -> {
+            is Destination.AllLists -> {
                 AllListsScreen(
                     viewModel = viewModel,
                     onListClick = { list ->
-                        selectedList = list
-                        currentScreen = ScreenId.EDIT
-                    },
+                        currentScreen = Destination.Edit(list.id, list.name)
+                    }
                 )
             }
 
-            ScreenId.EDIT -> {
-                val list = selectedList ?: run {
-                    currentScreen = ScreenId.ALL_LISTS
-                    return@Scaffold
-                }
-                val listViewModel = remember(list.id) {
-                    ShoppingListViewModel(repository, list.id)
+            is Destination.Edit -> {
+                val listId = (currentScreen as Destination.Edit).listId
+                val listName = (currentScreen as Destination.Edit).listName
+
+                val listViewModel = remember(listId) {
+                    ShoppingListViewModel(repository, listId)
                 }
                 EditListScreen(
                     viewModel = listViewModel,
-                    listName = list.name,
-                    onBackClick = { currentScreen = ScreenId.ALL_LISTS }
+                    listName = listName,
+                    onBackClick = { currentScreen = Destination.AllLists }
                 )
             }
         }
