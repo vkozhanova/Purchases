@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.Room
-import com.example.purchases.features.ui.components.ShoppingItem
+import com.example.purchases.data.database.entity.ShoppingItem
 import com.example.purchases.data.database.dao.ShoppingItemDao
 import com.example.purchases.features.ui.components.ShoppingList
 import com.example.purchases.data.database.dao.ShoppingListDao
@@ -39,4 +39,3 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
-

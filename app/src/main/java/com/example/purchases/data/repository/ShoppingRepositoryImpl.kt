@@ -1,12 +1,13 @@
-package com.example.purchases.data.database.repository
+package com.example.purchases.data.repository
 
 import com.example.purchases.data.database.dao.ShoppingItemDao
 import com.example.purchases.data.database.dao.ShoppingListDao
-import com.example.purchases.features.ui.components.ShoppingItem
+import com.example.purchases.data.database.entity.ShoppingItem
 import com.example.purchases.features.ui.components.ShoppingList
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class ShoppingRepositoryImpl(
+class ShoppingRepositoryImpl @Inject constructor(
     private val listDao: ShoppingListDao,
     private val itemDao: ShoppingItemDao
 ): ShoppingRepository {

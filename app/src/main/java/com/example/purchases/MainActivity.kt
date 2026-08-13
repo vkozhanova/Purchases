@@ -5,10 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import com.example.purchases.data.database.AppDatabase
-import com.example.purchases.data.database.repository.ShoppingRepositoryImpl
+import com.example.purchases.data.repository.ShoppingRepositoryImpl
 import com.example.purchases.features.ui.PurchaseAppTheme
 import com.example.purchases.features.lists.presentation.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

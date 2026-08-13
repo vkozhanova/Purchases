@@ -51,24 +51,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.purchases.data.database.repository.ShoppingRepository
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
 import com.example.purchases.features.ui.PurchaseAppTheme
-import com.example.purchases.features.ui.components.ShoppingItem
 import com.example.purchases.features.ui.purchaseAppTypography
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @Composable
@@ -87,7 +79,6 @@ fun AllListsScreen(
 
     AllListsScreenContent(
         uiState = uiState,
-        viewModel = viewModel,
         onAddClick = onAddClick,
         onListClick = onListClick,
         onDeleteClick = onADelete,
@@ -101,13 +92,13 @@ fun AllListsScreen(
 @Composable
 fun AllListsScreenContent(
     uiState: ShoppingListsUiState,
-    viewModel: MainViewModel,
     onAddClick: () -> Unit,
     onListClick: (ShoppingList) -> Unit,
     onDeleteClick: (ShoppingList) -> Unit,
     onCopyClick: (ShoppingList) -> Unit,
     onRename: (ShoppingList, String) -> Unit,
 ) {
+    val viewModel: MainViewModel = hiltViewModel()
     val listState = rememberLazyListState()
     var previousSize by remember { mutableIntStateOf(uiState.lists.size) }
     val coroutineScope = rememberCoroutineScope()
@@ -413,42 +404,11 @@ fun ShoppingListItem(
     }
 }
 
-// ------------------------------------------------------------
-// Фейковый репозиторий для превью
-// ------------------------------------------------------------
-private class FakeShoppingRepository : ShoppingRepository {
-    private val _lists = MutableStateFlow(
-        listOf(
-            ShoppingList(1, "Продукты"),
-            ShoppingList(2, "Хлеб")
-        )
-    )
-
-    override fun getAllLists(): Flow<List<ShoppingList>> = _lists.asStateFlow()
-    override suspend fun insertList(list: ShoppingList): Long {
-        val newList = list.copy(id = (_lists.value.maxOfOrNull { it.id } ?: 0) + 1)
-        _lists.update { it + newList }
-        return newList.id.toLong()
-    }
-
-    override suspend fun deleteList(list: ShoppingList) {
-        _lists.update { it.filter { it.id != list.id } }
-    }
-
-    override fun getItemsForList(listId: Int): Flow<List<ShoppingItem>> = flow { emit(emptyList()) }
-    override fun getAllItems(): Flow<List<ShoppingItem>> = flow { emit(emptyList()) }
-    override suspend fun insertItem(item: ShoppingItem) = Unit
-    override suspend fun deleteItem(item: ShoppingItem) = Unit
-    override suspend fun updateItem(item: ShoppingItem) = Unit
-}
-
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun AllListScreenPreview() {
     PurchaseAppTheme {
-        val fakeRepository = FakeShoppingRepository()
-        val viewModel = MainViewModel(fakeRepository)
         AllListsScreenContent(
             uiState = ShoppingListsUiState(
                 isLoading = false,
@@ -457,7 +417,6 @@ fun AllListScreenPreview() {
                     ShoppingList(2, "Хлеб")
                 )
             ),
-            viewModel = viewModel,
             onAddClick = {},
             onListClick = {},
             onDeleteClick = {},
