@@ -1,14 +1,14 @@
-package com.example.purchases.features.ui
+package com.example.purchases.features.items.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -32,7 +31,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,7 +57,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.purchases.features.items.presentation.model.ShoppingItemsUiState
-import com.example.purchases.features.ui.components.ShoppingItem
+import com.example.purchases.data.database.entity.ShoppingItem
 import com.example.purchases.features.items.presentation.ShoppingListViewModel
 import kotlinx.coroutines.launch
 
@@ -99,6 +97,7 @@ fun EditListScreenContent(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var previousSize by remember { mutableStateOf(uiState.items.size) }
+    val snapFlingBehavior = rememberSnapFlingBehavior(listState)
 
     LaunchedEffect(uiState.items.size) {
         val currentSize = uiState.items.size
@@ -202,7 +201,6 @@ fun EditListScreenContent(
 
                 val maxListHeight = screenHeightDp - topPadding - bottomPadding - 20.dp + itemHeightEstimate - 4.dp
 
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -212,8 +210,6 @@ fun EditListScreenContent(
                             start = 20.dp,
                             end = 20.dp
                         )
-                        .heightIn(max = maxListHeight)
-                        .wrapContentHeight()
                         .background(
                             color = MaterialTheme.colorScheme.background,
                             shape = RoundedCornerShape(16.dp)
@@ -221,9 +217,10 @@ fun EditListScreenContent(
                 ) {
                     LazyColumn(
                         state = listState,
+                        flingBehavior = snapFlingBehavior,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(),
+                            .heightIn(max = maxListHeight),
                         contentPadding = PaddingValues(top = 2.dp, bottom = 2.dp)
                     ) {
                         itemsIndexed(
@@ -306,7 +303,7 @@ fun ShoppingItemRow(
         ) {
             Text(
                 text = index.toString(),
-                style = purchaseAppTypography.bodySmall,
+                style = _root_ide_package_.com.example.purchases.features.ui.purchaseAppTypography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .width(20.dp)
@@ -421,7 +418,7 @@ fun ShoppingItemRow(
 @Preview(showBackground = true)
 @Composable
 fun EditListScreenPreview() {
-    PurchaseAppTheme {
+    _root_ide_package_.com.example.purchases.features.ui.PurchaseAppTheme {
         val items = listOf(
             ShoppingItem(0, 1, "Уборка", false),
             ShoppingItem(1, 1, "Продукты", true),

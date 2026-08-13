@@ -3,8 +3,9 @@ package com.example.purchases.features.lists.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
-import com.example.purchases.data.database.repository.ShoppingRepository
+import com.example.purchases.data.repository.ShoppingRepository
 import com.example.purchases.features.ui.components.ShoppingList
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +16,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val repository: ShoppingRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ShoppingListsUiState(isLoading = true))
     val uiState: StateFlow<ShoppingListsUiState> = _uiState.asStateFlow()
@@ -30,17 +35,16 @@ class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
     val filteredLists: StateFlow<List<ShoppingList>> = combine(
         allLists,
         searchQuery
-    ) {
-        allLists, query ->
-        if(query.isBlank()) allLists
-        else allLists.filter { it.name.contains(query, ignoreCase  = true) }
+    ) { allLists, query ->
+        if (query.isBlank()) allLists
+        else allLists.filter { it.name.contains(query, ignoreCase = true) }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
 
-    init{
+    init {
         loadShoppingLists()
     }
 
@@ -71,6 +75,7 @@ class MainViewModel(private val repository: ShoppingRepository): ViewModel() {
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
+
     fun deleteList(list: ShoppingList) {
         viewModelScope.launch {
             repository.deleteList(list)

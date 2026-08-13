@@ -2,9 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
-    kotlin("plugin.serialization")
-    id("com.google.dagger.hilt.android") version "2.47" apply false
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -41,13 +41,12 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures {
-        compose = true
+    ksp {
+        arg("dagger.hilt.disableModulesHaveInstallInCheck", "true")
     }
 }
 
 dependencies {
-
 
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.material3)
@@ -57,10 +56,8 @@ dependencies {
     implementation(libs.androidx.navigation.ui)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.foundation)
-    ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -79,10 +76,16 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("androidx.compose.material:material-icons-core:1.7.8")
 
-    // Hilt core
-    implementation("com.google.dagger:hilt-android:2.47")
-    ksp("com.google.dagger:hilt-android-compiler:2.47")
+
 
 // Hilt + Jetpack Compose integration
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 }

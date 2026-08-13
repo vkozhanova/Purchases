@@ -1,6 +1,6 @@
-package com.example.purchases.data.database.repository
+package com.example.purchases.data.repository
 
-import com.example.purchases.features.ui.components.ShoppingItem
+import com.example.purchases.data.database.entity.ShoppingItem
 import com.example.purchases.features.ui.components.ShoppingList
 import kotlinx.coroutines.flow.Flow
 

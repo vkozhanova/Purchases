@@ -9,8 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.purchases.core.navigation.Destination
-import com.example.purchases.data.database.repository.ShoppingRepository
-import com.example.purchases.features.ui.EditListScreen
+import com.example.purchases.data.repository.ShoppingRepository
+import com.example.purchases.features.items.ui.EditListScreen
 import com.example.purchases.features.lists.presentation.MainViewModel
 import com.example.purchases.features.items.presentation.ShoppingListViewModel
 
