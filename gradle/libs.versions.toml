@@ -1,5 +1,7 @@
 [versions]
 agp = "8.13.0"
+capturable = "1.0.2"
+composeToPdf = "1.1.0"
 kotlin = "2.2.20"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -27,6 +29,8 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationFragment" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationFragment" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+capturable = { module = "com.github.PatilShreyas:Capturable", version.ref = "capturable" }
+compose-to-pdf = { module = "com.github.jksalcedo:compose-to-pdf", version.ref = "composeToPdf" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

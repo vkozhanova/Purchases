@@ -47,7 +47,8 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.capturable)
+    implementation(libs.compose.to.pdf)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.material3)
     implementation(libs.material)

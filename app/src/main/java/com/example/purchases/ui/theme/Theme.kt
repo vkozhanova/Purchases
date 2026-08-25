@@ -3,6 +3,7 @@ package com.example.purchases.features.ui
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import com.example.purchases.ui.theme.purchaseAppTypography
 
 private val PurchaseLightColorScheme = lightColorScheme(
 
