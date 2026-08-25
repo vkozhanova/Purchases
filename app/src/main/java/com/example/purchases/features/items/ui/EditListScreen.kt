@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -39,6 +40,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -54,12 +57,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.purchases.features.items.presentation.model.ShoppingItemsUiState
 import com.example.purchases.data.database.entity.ShoppingItem
+import com.example.purchases.domain.export.ImageExporter
 import com.example.purchases.features.items.presentation.ShoppingListViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.Divider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
+import com.example.purchases.domain.export.ExportStyle
+import com.example.purchases.ui.theme.purchaseAppTypography
 
 @Composable
 fun EditListScreen(
@@ -81,6 +94,48 @@ fun EditListScreen(
     )
 }
 
+@Composable
+fun ExportableContent(
+    items: List<ShoppingItem>,
+    listName: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = listName,
+            style = MaterialTheme.typography.headlineSmall,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Divider(color = Color.LightGray, thickness = 1.dp)
+        Spacer(modifier = Modifier.height(16.dp))
+        items.forEachIndexed { index, item ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${index + 1}. ${item.name}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Black
+                )
+                if (item.isChecked) {
+                    Text(
+                        text = "✓",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Green
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
+}
+
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +149,9 @@ fun EditListScreenContent(
     onRename: (ShoppingItem, String) -> Unit,
     onToggleChecked: (ShoppingItem) -> Unit,
 ) {
+    val context = LocalContext.current
+    val imageExporter = remember { ImageExporter() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var previousSize by remember { mutableStateOf(uiState.items.size) }
@@ -112,6 +170,24 @@ fun EditListScreenContent(
         }
         previousSize = currentSize
     }
+
+    val density = LocalDensity.current
+    val exportStyle = ExportStyle(
+        backgroundColor = MaterialTheme.colorScheme.background.toArgb(),
+        titleColor = MaterialTheme.colorScheme.primary.toArgb(),
+        titleTextSize = MaterialTheme.typography.headlineSmall.fontSize.value,
+        itemColor = MaterialTheme.colorScheme.onBackground.toArgb(),
+        checkedColor = MaterialTheme.colorScheme.primary.toArgb(),
+        itemTextSize = MaterialTheme.typography.bodyLarge.fontSize.value,
+        paddingPx = 60,
+        itemHeightPx = 50,
+        headerHeightPx = 100,
+        dividerColor = MaterialTheme.colorScheme.outline.toArgb(),
+        dividerStrokeWidth = 4f,
+        imageWidth = 1080,
+        strikeColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f).toArgb(),
+        strikeHeightPx = with(density) { 10.dp.toPx() }
+    )
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -158,17 +234,42 @@ fun EditListScreenContent(
                             )
                         }
                     }
+                    IconButton(onClick = onAddClick) {
+                        Icon(Icons.Rounded.Add, contentDescription = "Добавить")
+                    }
+                    // Кнопка экспорта
                     IconButton(
-                        onClick = onAddClick
+                        onClick = {
+                            coroutineScope.launch {
+                                if (uiState.items.isNotEmpty()) {
+                                    try {
+                                        val file = imageExporter.exportToImage(
+                                            context = context,
+                                            items = uiState.items,
+                                            listName = listName,
+                                            style = exportStyle
+                                        )
+                                       imageExporter.openImageForPreview(context, file)
+                                    } catch (e: Exception) {
+                                        snackbarHostState.showSnackbar(
+                                            message = "Ошибка: ${e.localizedMessage ?: "Неизвестная ошибка"}",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                } else {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Список пуст",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        }
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Add,
-                            contentDescription = "Добавить"
-                        )
+                        Icon(Icons.Default.Share, contentDescription = "Экспорт в PNG")
                     }
                 }
             )
-        },
+        }
     ) { paddingValues ->
         when {
             uiState.isLoading -> {
@@ -197,9 +298,8 @@ fun EditListScreenContent(
 
                 val topPadding = paddingValues.calculateTopPadding()
                 val bottomPadding = paddingValues.calculateBottomPadding() + 8.dp
-                val itemHeightEstimate = 48.dp
 
-                val maxListHeight = screenHeightDp - topPadding - bottomPadding - 20.dp + itemHeightEstimate - 4.dp
+                val maxListHeight = screenHeightDp - topPadding - bottomPadding - 22.dp
 
                 Box(
                     modifier = Modifier
@@ -303,7 +403,7 @@ fun ShoppingItemRow(
         ) {
             Text(
                 text = index.toString(),
-                style = _root_ide_package_.com.example.purchases.features.ui.purchaseAppTypography.bodySmall,
+                style = purchaseAppTypography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .width(20.dp)
@@ -311,7 +411,7 @@ fun ShoppingItemRow(
             )
             Text(
                 text = item.name,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .weight(1f)

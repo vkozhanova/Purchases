@@ -1,4 +1,4 @@
-package com.example.purchases.features.ui
+package com.example.purchases.ui.theme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

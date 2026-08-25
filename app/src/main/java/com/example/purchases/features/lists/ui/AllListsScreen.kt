@@ -60,7 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
 import com.example.purchases.features.ui.PurchaseAppTheme
-import com.example.purchases.features.ui.purchaseAppTypography
+import com.example.purchases.ui.theme.purchaseAppTypography
 import kotlinx.coroutines.launch
 
 @Composable
