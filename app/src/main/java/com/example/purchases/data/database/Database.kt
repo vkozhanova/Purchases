@@ -23,7 +23,6 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile
 
-//        ссылка на объект базы
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {

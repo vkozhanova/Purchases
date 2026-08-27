@@ -2,6 +2,7 @@ package com.example.purchases.features.lists.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.purchases.R
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
 import com.example.purchases.data.repository.ShoppingRepository
 import com.example.purchases.features.ui.components.ShoppingList

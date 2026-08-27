@@ -56,10 +56,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.purchases.R
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
-import com.example.purchases.features.ui.PurchaseAppTheme
+import com.example.purchases.ui.theme.PurchaseAppTheme
 import com.example.purchases.ui.theme.purchaseAppTypography
 import kotlinx.coroutines.launch
 
@@ -118,10 +120,10 @@ fun AllListsScreenContent(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Purchases") },
+                title = { Text(stringResource(R.string.app_name)) },
                 actions = {
                     IconButton(onClick = { expanded = !expanded }) {
-                        Icon(Icons.Default.Search, contentDescription = "Поиск")
+                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                     }
                     if (uiState.lists.isNotEmpty()) {
                         IconButton(
@@ -133,7 +135,7 @@ fun AllListsScreenContent(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowUp,
-                                contentDescription = "Вверх"
+                                contentDescription = stringResource(R.string.to_up)
                             )
                         }
                         IconButton(
@@ -145,7 +147,7 @@ fun AllListsScreenContent(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Вниз"
+                                contentDescription = stringResource(R.string.to_down)
                             )
                         }
                     }
@@ -158,7 +160,7 @@ fun AllListsScreenContent(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.background
             ) {
-                Icon(Icons.Rounded.Add, contentDescription = "Add")
+                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.add))
             }
         },
         floatingActionButtonPosition = FabPosition.Center
@@ -168,12 +170,12 @@ fun AllListsScreenContent(
                 TextField(
                     value = searchQuery,
                     onValueChange = viewModel::updateSearchQuery,
-                    placeholder = { Text("Поиск...") },
+                    placeholder = { Text(stringResource(R.string.search_string)) },
                     singleLine = true,
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.updateSearchQuery("") }) {
-                                Icon(Icons.Default.Close, contentDescription = "Очистить")
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clean))
                             }
                         }
                     },
@@ -221,7 +223,7 @@ fun AllListsScreenContent(
                         modifier = Modifier
                             .padding(paddingValues)
                             .fillMaxSize(),
-                        message = if (searchQuery.isNotEmpty()) "Ничего не найдено" else "Нет доступных списков"
+                        message = if (searchQuery.isNotEmpty()) stringResource(R.string.nothing_find) else stringResource(R.string.no_lists)
                     )
                 }
 
@@ -254,7 +256,7 @@ fun AllListsScreenContent(
 @Composable
 fun EmptyState(
     modifier: Modifier = Modifier,
-    message: String = "Нет доступных списков"
+    message: String = stringResource(R.string.no_lists)
 ) {
     Box(modifier = modifier) {
         Text(
@@ -314,7 +316,7 @@ fun ShoppingListItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Редактировать название",
+                    contentDescription = stringResource(R.string.edit_title),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -334,7 +336,7 @@ fun ShoppingListItem(
             DropdownMenuItem(
                 text = {
                     Text(
-                        text = "Удалить",
+                        text = stringResource(R.string.to_delete),
                         style = purchaseAppTypography.bodySmall,
                     )
                 },
@@ -350,7 +352,7 @@ fun ShoppingListItem(
             DropdownMenuItem(
                 text = {
                     Text(
-                        text = "Копировать",
+                        text = stringResource(R.string.to_copy),
                         style = purchaseAppTypography.bodySmall,
                     )
                 },
@@ -369,7 +371,7 @@ fun ShoppingListItem(
                 onDismissRequest = { showRenameDialog = false },
                 containerColor = MaterialTheme.colorScheme.background,
                 textContentColor = MaterialTheme.colorScheme.background,
-                title = { Text("Изменить название") },
+                title = { Text(stringResource(R.string.edit_title)) },
                 text = {
                     TextField(
                         value = newName,
@@ -391,12 +393,12 @@ fun ShoppingListItem(
                             showRenameDialog = false
                         }
                     ) {
-                        Text("Сохранить")
+                        Text(stringResource(R.string.save))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showRenameDialog = false }) {
-                        Text("Отмена")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )

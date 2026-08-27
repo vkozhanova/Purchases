@@ -71,7 +71,10 @@ import androidx.compose.material3.Divider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import com.example.purchases.R
 import com.example.purchases.domain.export.ExportStyle
+import com.example.purchases.ui.theme.PurchaseAppTheme
 import com.example.purchases.ui.theme.purchaseAppTypography
 
 @Composable
@@ -203,7 +206,7 @@ fun EditListScreenContent(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад"
+                            contentDescription = stringResource(R.string.to_back)
                         )
                     }
                 },
@@ -218,7 +221,7 @@ fun EditListScreenContent(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowUp,
-                                contentDescription = "Вверх"
+                                contentDescription = stringResource(R.string.to_up)
                             )
                         }
                         IconButton(
@@ -230,14 +233,13 @@ fun EditListScreenContent(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Вниз"
+                                contentDescription = stringResource(R.string.to_down)
                             )
                         }
                     }
                     IconButton(onClick = onAddClick) {
-                        Icon(Icons.Rounded.Add, contentDescription = "Добавить")
+                        Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.add))
                     }
-                    // Кнопка экспорта
                     IconButton(
                         onClick = {
                             coroutineScope.launch {
@@ -258,14 +260,14 @@ fun EditListScreenContent(
                                     }
                                 } else {
                                     snackbarHostState.showSnackbar(
-                                        message = "Список пуст",
+                                        message = R.string.empty_list.toString(),
                                         duration = SnackbarDuration.Short
                                     )
                                 }
                             }
                         }
                     ) {
-                        Icon(Icons.Default.Share, contentDescription = "Экспорт в PNG")
+                        Icon(Icons.Default.Share, contentDescription = stringResource(R.string.export_to_png))
                     }
                 }
             )
@@ -355,7 +357,7 @@ fun EditListScreenContent(
 fun EmptyState(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         Text(
-            text = "Список еще пуст",
+            text = stringResource(R.string.still_empty_list),
             modifier = Modifier.align(Alignment.Center)
         )
     }
@@ -431,7 +433,7 @@ fun ShoppingItemRow(
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Редактировать",
+                    contentDescription = stringResource(R.string.to_edit),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -449,7 +451,7 @@ fun ShoppingItemRow(
             DropdownMenuItem(
                 text = {
                     Text(
-                        text = "Удалить",
+                        text = stringResource(R.string.to_delete),
                         style = MaterialTheme.typography.bodySmall
                     )
                 },
@@ -461,7 +463,7 @@ fun ShoppingItemRow(
             DropdownMenuItem(
                 text = {
                     Text(
-                        text = "Копировать",
+                        text = stringResource(R.string.to_copy),
                         style = MaterialTheme.typography.bodySmall
                     )
                 },
@@ -478,7 +480,7 @@ fun ShoppingItemRow(
             onDismissRequest = { showRenameDialog = false },
             containerColor = MaterialTheme.colorScheme.background,
             textContentColor = MaterialTheme.colorScheme.background,
-            title = { Text(text = "Изменить название") },
+            title = { Text(text = stringResource(R.string.edit_title)) },
             text = {
                 TextField(
                     value = newName,
@@ -502,13 +504,13 @@ fun ShoppingItemRow(
                         showRenameDialog = false
                     },
                 ) {
-                    Text("Сохранить")
+                    Text(stringResource(R.string.save))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showRenameDialog = false }) {
-                    Text(text = "Отмена")
+                    Text(text = stringResource(R.string.cancel))
                 }
             }
         )
@@ -518,7 +520,7 @@ fun ShoppingItemRow(
 @Preview(showBackground = true)
 @Composable
 fun EditListScreenPreview() {
-    _root_ide_package_.com.example.purchases.features.ui.PurchaseAppTheme {
+    PurchaseAppTheme {
         val items = listOf(
             ShoppingItem(0, 1, "Уборка", false),
             ShoppingItem(1, 1, "Продукты", true),
