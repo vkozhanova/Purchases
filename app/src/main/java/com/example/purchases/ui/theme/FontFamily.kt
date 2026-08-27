@@ -1,4 +1,4 @@
-package com.example.recipecompapp.ui.theme
+package com.example.purchases.ui.theme
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily

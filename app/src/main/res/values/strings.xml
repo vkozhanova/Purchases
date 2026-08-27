@@ -4,5 +4,36 @@
     <string name="edit_screen">Создание/Редактирование</string>
     <string name="edit_button">Перейти к редактированию</string>
     <string name="back_to_main_button">Вернуться на главный экран</string>
+    <string name="share_img">Поделиться изображением</string>
+    <string name="copy"> (копия)</string>
+    <string name="to_back">Назад</string>
+    <string name="to_up">Вверх</string>
+    <string name="to_down">Вниз</string>
+    <string name="add">Добавить</string>
+    <string name="empty_list">Список пуст</string>
+    <string name="export_to_png">Экспорт в PNG</string>
+    <string name="still_empty_list">Список еще пуст</string>
+    <string name="to_edit">Редактировать</string>
+    <string name="to_delete">Удалить</string>
+    <string name="to_copy">Копировать</string>
+    <string name="edit_title">Изменить название</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="new_list">Новый список</string>
+    <string name="search">Поиск</string>
+    <string name="search_string">Поиск…</string>
+    <string name="clean">Очистить</string>
+    <string name="nothing_find">Ничего не найдено</string>
+    <string name="no_lists">Нет доступных списков</string>
+
+
+
+
+
+
+
+
+
+
 
 </resources>

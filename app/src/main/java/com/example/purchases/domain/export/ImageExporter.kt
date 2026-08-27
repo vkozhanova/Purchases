@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import androidx.core.graphics.createBitmap
+import com.example.purchases.R
 
 class ImageExporter {
     suspend fun exportToImage(
@@ -59,7 +60,6 @@ class ImageExporter {
         val paddingX = style.paddingPx.toFloat()
         var y = style.paddingPx.toFloat()
 
-        // Заголовок
         canvas.drawText(listName, style.paddingPx.toFloat(), y + style.titleTextSize, titlePaint)
         y += style.titleTextSize + 20f
         canvas.drawLine(style.paddingPx.toFloat(), y, (imageWidth - style.paddingPx).toFloat(), y,  dividerPaint)
@@ -99,7 +99,7 @@ class ImageExporter {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(intent, "Поделиться изображением"))
+        context.startActivity(Intent.createChooser(intent, R.string.share_img.toString()))
     }
 
     fun openImageForPreview(context: Context, file: File) {
