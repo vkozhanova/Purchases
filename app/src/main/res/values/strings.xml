@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">Purchases</string>
-    <string name="main_screen">Главный экран</string>
-    <string name="edit_screen">Создание/Редактирование</string>
-    <string name="edit_button">Перейти к редактированию</string>
-    <string name="back_to_main_button">Вернуться на главный экран</string>
     <string name="share_img">Поделиться изображением</string>
     <string name="copy"> (копия)</string>
     <string name="to_back">Назад</string>
@@ -25,15 +21,4 @@
     <string name="clean">Очистить</string>
     <string name="nothing_find">Ничего не найдено</string>
     <string name="no_lists">Нет доступных списков</string>
-
-
-
-
-
-
-
-
-
-
-
 </resources>
