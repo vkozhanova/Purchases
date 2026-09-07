@@ -65,12 +65,9 @@ import com.example.purchases.data.database.entity.ShoppingItem
 import com.example.purchases.domain.export.ImageExporter
 import com.example.purchases.features.items.presentation.ShoppingListViewModel
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material3.Divider
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.purchases.R
 import com.example.purchases.domain.export.ExportStyle
@@ -95,48 +92,6 @@ fun EditListScreen(
         onRename = { item, newName -> viewModel.updateItem(item.copy(name = newName)) },
         onToggleChecked = { viewModel.toggleChecked(it) }
     )
-}
-
-@Composable
-fun ExportableContent(
-    items: List<ShoppingItem>,
-    listName: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = listName,
-            style = MaterialTheme.typography.headlineSmall,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Divider(color = Color.LightGray, thickness = 1.dp)
-        Spacer(modifier = Modifier.height(16.dp))
-        items.forEachIndexed { index, item ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "${index + 1}. ${item.name}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Black
-                )
-                if (item.isChecked) {
-                    Text(
-                        text = "✓",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Green
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-    }
 }
 
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -217,7 +172,8 @@ fun EditListScreenContent(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            }
+                            },
+                            modifier = Modifier.testTag("scroll_up_button")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowUp,
@@ -229,7 +185,8 @@ fun EditListScreenContent(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(uiState.items.size - 1)
                                 }
-                            }
+                            },
+                            modifier = Modifier.testTag("scroll_down_button")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -237,7 +194,10 @@ fun EditListScreenContent(
                             )
                         }
                     }
-                    IconButton(onClick = onAddClick) {
+                    IconButton(
+                        onClick = onAddClick,
+                        modifier = Modifier.testTag("add_button")
+                    ) {
                         Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.add))
                     }
                     IconButton(
@@ -276,13 +236,18 @@ fun EditListScreenContent(
         when {
             uiState.isLoading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        modifier = Modifier.testTag("loading_indicator")
+                    )
                 }
             }
 
             uiState.error != null -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Ошибка: ${uiState.error}")
+                    Text(
+                        text = "Ошибка: ${uiState.error}",
+                        modifier = Modifier.testTag("error_message")
+                    )
                 }
             }
 
@@ -291,6 +256,7 @@ fun EditListScreenContent(
                     modifier = Modifier
                         .padding(paddingValues)
                         .fillMaxSize()
+                        .testTag("empty_state")
                 )
             }
 
@@ -382,6 +348,7 @@ fun ShoppingItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .testTag("item_row_${item.id}")
     ) {
         if (item.isChecked) {
             Box(
@@ -426,10 +393,12 @@ fun ShoppingItemRow(
                     checkedColor = MaterialTheme.colorScheme.primary,
                     uncheckedColor = MaterialTheme.colorScheme.primary,
                     checkmarkColor = MaterialTheme.colorScheme.background
-                )
+                ),
+                modifier = Modifier.testTag("checkbox_${item.id}")
             )
             IconButton(
-                onClick = { showRenameDialog = true }
+                onClick = { showRenameDialog = true },
+                modifier = Modifier.testTag("edit_button_${item.id}")
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -441,11 +410,13 @@ fun ShoppingItemRow(
         DropdownMenu(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false },
-            modifier = Modifier.border(
+            modifier = Modifier
+                .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.surface,
                 shape = MaterialTheme.shapes.extraSmall
-            ),
+            )
+                .testTag("context_menu_${item.id}"),
             containerColor = MaterialTheme.colorScheme.background
         ) {
             DropdownMenuItem(
@@ -458,7 +429,8 @@ fun ShoppingItemRow(
                 onClick = {
                     onDelete()
                     menuExpanded = false
-                }
+                },
+                modifier = Modifier.testTag("delete_menu_item_${item.id}")
             )
             DropdownMenuItem(
                 text = {
@@ -470,7 +442,8 @@ fun ShoppingItemRow(
                 onClick = {
                     onCopy()
                     menuExpanded = false
-                }
+                },
+                modifier = Modifier.testTag("copy_menu_item_${item.id}")
             )
         }
     }
@@ -492,7 +465,8 @@ fun ShoppingItemRow(
                         disabledContainerColor = MaterialTheme.colorScheme.background,
                         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                         unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-                    )
+                    ),
+                    modifier = Modifier.testTag("rename_text_field")
                 )
             },
             confirmButton = {
@@ -503,16 +477,20 @@ fun ShoppingItemRow(
                         }
                         showRenameDialog = false
                     },
+                    modifier = Modifier.testTag("rename_save_button")
                 ) {
                     Text(stringResource(R.string.save))
                 }
             },
             dismissButton = {
                 TextButton(
-                    onClick = { showRenameDialog = false }) {
+                    onClick = { showRenameDialog = false },
+                    modifier = Modifier.testTag("rename_cancel_button")
+                ) {
                     Text(text = stringResource(R.string.cancel))
                 }
-            }
+            },
+            modifier = Modifier.testTag("rename_dialog")
         )
     }
 }

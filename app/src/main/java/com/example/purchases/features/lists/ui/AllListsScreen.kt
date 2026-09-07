@@ -56,6 +56,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,6 +72,8 @@ fun AllListsScreen(
     onListClick: (ShoppingList) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val filteredLists by viewModel.filteredLists.collectAsState()
 
     val onAddClick = remember { { viewModel.createNewList() } }
     val onADelete = remember { { list: ShoppingList -> viewModel.deleteList(list) } }
@@ -81,6 +84,9 @@ fun AllListsScreen(
 
     AllListsScreenContent(
         uiState = uiState,
+        searchQuery = searchQuery,
+        filteredLists = filteredLists,
+        onSearchQueryChange = viewModel::updateSearchQuery,
         onAddClick = onAddClick,
         onListClick = onListClick,
         onDeleteClick = onADelete,
@@ -94,19 +100,20 @@ fun AllListsScreen(
 @Composable
 fun AllListsScreenContent(
     uiState: ShoppingListsUiState,
+    searchQuery: String,
+    filteredLists: List<ShoppingList>,
+    onSearchQueryChange: (String) -> Unit,
     onAddClick: () -> Unit,
     onListClick: (ShoppingList) -> Unit,
     onDeleteClick: (ShoppingList) -> Unit,
     onCopyClick: (ShoppingList) -> Unit,
     onRename: (ShoppingList, String) -> Unit,
 ) {
-    val viewModel: MainViewModel = hiltViewModel()
+
     val listState = rememberLazyListState()
     var previousSize by remember { mutableIntStateOf(uiState.lists.size) }
     val coroutineScope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val filteredLists by viewModel.filteredLists.collectAsState()
 
     LaunchedEffect(uiState.lists.size) {
         val currentSize = uiState.lists.size
@@ -122,7 +129,8 @@ fun AllListsScreenContent(
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
-                    IconButton(onClick = { expanded = !expanded }) {
+                    IconButton(onClick = { expanded = !expanded },
+                    modifier = Modifier.testTag("search_button")) {
                         Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                     }
                     if (uiState.lists.isNotEmpty()) {
@@ -131,7 +139,8 @@ fun AllListsScreenContent(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            }
+                            },
+                            modifier = Modifier.testTag("scroll_up_button")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowUp,
@@ -143,7 +152,8 @@ fun AllListsScreenContent(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(uiState.lists.size - 1)
                                 }
-                            }
+                            },
+                            modifier = Modifier.testTag("scroll_down_button")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -158,7 +168,8 @@ fun AllListsScreenContent(
             FloatingActionButton(
                 onClick = onAddClick,
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.background
+                contentColor = MaterialTheme.colorScheme.background,
+                modifier = Modifier.testTag("fab_add")
             ) {
                 Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.add))
             }
@@ -169,12 +180,13 @@ fun AllListsScreenContent(
             AnimatedVisibility(visible = expanded) {
                 TextField(
                     value = searchQuery,
-                    onValueChange = viewModel::updateSearchQuery,
+                    onValueChange = onSearchQueryChange,
                     placeholder = { Text(stringResource(R.string.search_string)) },
                     singleLine = true,
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.updateSearchQuery("") }) {
+                            IconButton(onClick = { onSearchQueryChange("") },
+                                modifier = Modifier.testTag("clear_search_button")) {
                                 Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clean))
                             }
                         }
@@ -203,18 +215,22 @@ fun AllListsScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .testTag("search_field")
                 )
             }
             when {
                 uiState.isLoading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(
+                            modifier = Modifier.testTag("loading_indicator")
+                        )
                     }
                 }
 
                 uiState.error != null -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Ошибка: ${uiState.error}")
+                        Text("Ошибка: ${uiState.error}",
+                            modifier = Modifier.testTag("error_message"))
                     }
                 }
 
@@ -222,7 +238,8 @@ fun AllListsScreenContent(
                     EmptyState(
                         modifier = Modifier
                             .padding(paddingValues)
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .testTag("empty_state"),
                         message = if (searchQuery.isNotEmpty()) stringResource(R.string.nothing_find) else stringResource(R.string.no_lists)
                     )
                 }
@@ -230,7 +247,9 @@ fun AllListsScreenContent(
                 else -> {
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("lists_container"),
                         contentPadding = PaddingValues(bottom = 160.dp)
                     ) {
                         items(
@@ -291,7 +310,8 @@ fun ShoppingListItem(
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = { menuExpanded = true }
-            ),
+            )
+            .testTag("list_item_${shoppingList.id}"),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -309,10 +329,12 @@ fun ShoppingListItem(
             Text(
                 text = shoppingList.name,
                 style = purchaseAppTypography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.testTag("list_item_name_${shoppingList.id}")
             )
             IconButton(
-                onClick = { showRenameDialog = true }
+                onClick = { showRenameDialog = true },
+                modifier = Modifier.testTag("edit_button_${shoppingList.id}")
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -324,11 +346,13 @@ fun ShoppingListItem(
         DropdownMenu(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false },
-            modifier = Modifier.border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.surface,
-                shape = MaterialTheme.shapes.extraSmall
-            ),
+            modifier = Modifier
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.extraSmall
+                )
+                .testTag("context_menu_${shoppingList.id}"),
             containerColor = MaterialTheme.colorScheme.background,
             tonalElevation = 1.dp,
             shape = MaterialTheme.shapes.extraSmall,
@@ -340,6 +364,7 @@ fun ShoppingListItem(
                         style = purchaseAppTypography.bodySmall,
                     )
                 },
+                modifier = Modifier.testTag("delete_menu_item_${shoppingList.id}"),
                 onClick = {
                     onDelete()
                     menuExpanded = false
@@ -360,6 +385,7 @@ fun ShoppingListItem(
                     onCopy()
                     menuExpanded = false
                 },
+                modifier = Modifier.testTag("copy_menu_item_${shoppingList.id}"),
                 colors = MenuDefaults.itemColors(
                     textColor = MaterialTheme.colorScheme.primary
                 )
@@ -377,6 +403,7 @@ fun ShoppingListItem(
                         value = newName,
                         onValueChange = { newName = it },
                         singleLine = true,
+                        modifier = Modifier.testTag("rename_text_field_${shoppingList.id}"),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = MaterialTheme.colorScheme.background,
                             unfocusedContainerColor = MaterialTheme.colorScheme.background,
@@ -391,13 +418,15 @@ fun ShoppingListItem(
                         onClick = {
                             onRename(newName)
                             showRenameDialog = false
-                        }
+                        },
+                        modifier = Modifier.testTag("rename_save_button_${shoppingList.id}")
                     ) {
                         Text(stringResource(R.string.save))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showRenameDialog = false }) {
+                    TextButton(onClick = { showRenameDialog = false },
+                        modifier = Modifier.testTag("rename_cancel_button_${shoppingList.id}")) {
                         Text(stringResource(R.string.cancel))
                     }
                 }
@@ -411,14 +440,18 @@ fun ShoppingListItem(
 @Composable
 fun AllListScreenPreview() {
     PurchaseAppTheme {
+        val sampleLists = listOf(
+            ShoppingList(1, "Продукты"),
+            ShoppingList(2, "Хлеб")
+        )
         AllListsScreenContent(
             uiState = ShoppingListsUiState(
                 isLoading = false,
-                lists = listOf(
-                    ShoppingList(1, "Продукты"),
-                    ShoppingList(2, "Хлеб")
-                )
+                lists = sampleLists
             ),
+            searchQuery = "",
+            filteredLists = sampleLists,
+            onSearchQueryChange = { },
             onAddClick = {},
             onListClick = {},
             onDeleteClick = {},
