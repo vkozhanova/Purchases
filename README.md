@@ -83,4 +83,4 @@ git clone https://github.com/vkozhanova/Purchases.git
 
 GitHub: [@vkozhanova](https://github.com/vkozhanova)
 
-лого прилодения принадлежит <a target="_blank" href="https://icons8.com/icon/cGcRDueIKQkF/task">заметки</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+Лого приложения принадлежит [заметки](https://icons8.com/icon/cGcRDueIKQkF/task) icon by [Icons8](https://icons8.com)
