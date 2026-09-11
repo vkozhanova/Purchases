@@ -11,7 +11,7 @@ Android-приложение для списков, разработанное �
 ## Demo
 <table>
 <tr>
-<td align="center"><b>All Lists</b></td>
+<td align="center"><b>Демонстрация работы</b></td>
 </tr>
 <tr>
 <td><img src="screenshots/purchases_1.gif" width="260" alt=""></td>
