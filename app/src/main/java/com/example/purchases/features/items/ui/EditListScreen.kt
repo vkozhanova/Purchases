@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import com.example.purchases.features.items.presentation.model.ShoppingItemsUiState
 import com.example.purchases.data.database.entity.ShoppingItem
 import com.example.purchases.domain.export.ImageExporter
-import com.example.purchases.features.items.presentation.ShoppingListViewModel
+import com.example.purchases.features.items.presentation.ShoppingItemsViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
@@ -76,7 +76,7 @@ import com.example.purchases.ui.theme.purchaseAppTypography
 
 @Composable
 fun EditListScreen(
-    viewModel: ShoppingListViewModel,
+    viewModel: ShoppingItemsViewModel,
     listName: String,
     onBackClick: () -> Unit,
 ) {

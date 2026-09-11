@@ -11,13 +11,13 @@ import androidx.compose.runtime.setValue
 import com.example.purchases.core.navigation.Destination
 import com.example.purchases.data.repository.ShoppingRepository
 import com.example.purchases.features.items.ui.EditListScreen
-import com.example.purchases.features.lists.presentation.MainViewModel
-import com.example.purchases.features.items.presentation.ShoppingListViewModel
+import com.example.purchases.features.lists.presentation.AllListsViewModel
+import com.example.purchases.features.items.presentation.ShoppingItemsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PurchaseApp(
-    viewModel: MainViewModel,
+    viewModel: AllListsViewModel,
     repository: ShoppingRepository,
 ) {
     var currentScreen by remember { mutableStateOf<Destination>(Destination.AllLists) }
@@ -38,7 +38,7 @@ fun PurchaseApp(
                 val listName = (currentScreen as Destination.Edit).listName
 
                 val listViewModel = remember(listId) {
-                    ShoppingListViewModel(repository, listId)
+                    ShoppingItemsViewModel(repository, listId)
                 }
                 EditListScreen(
                     viewModel = listViewModel,

@@ -33,8 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.purchases.features.ui.components.ShoppingList
-import com.example.purchases.features.lists.presentation.MainViewModel
+import com.example.purchases.data.database.entity.ShoppingList
+import com.example.purchases.features.lists.presentation.AllListsViewModel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -60,7 +60,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.purchases.R
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
 import com.example.purchases.ui.theme.PurchaseAppTheme
@@ -69,7 +68,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AllListsScreen(
-    viewModel: MainViewModel,
+    viewModel: AllListsViewModel,
     onListClick: (ShoppingList) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()

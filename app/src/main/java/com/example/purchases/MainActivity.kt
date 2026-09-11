@@ -7,7 +7,7 @@ import androidx.core.view.WindowCompat
 import com.example.purchases.data.database.AppDatabase
 import com.example.purchases.data.repository.ShoppingRepositoryImpl
 import com.example.purchases.ui.theme.PurchaseAppTheme
-import com.example.purchases.features.lists.presentation.MainViewModel
+import com.example.purchases.features.lists.presentation.AllListsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
             listDao = database.shoppingListDao()
         )
 
-        val viewModel = MainViewModel(repository)
+        val viewModel = AllListsViewModel(repository)
 
         setContent {
             PurchaseAppTheme {

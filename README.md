@@ -54,7 +54,7 @@ app
 │   └── export
 ├── di
 ├── features
-│   ├── item
+│   ├── items
 │   └── lists
 └── ui
 ```
