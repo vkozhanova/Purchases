@@ -82,3 +82,5 @@ git clone https://github.com/vkozhanova/Purchases.git
 **Vera Kozhanova**
 
 GitHub: [@vkozhanova](https://github.com/vkozhanova)
+
+лого прилодения принадлежит <a target="_blank" href="https://icons8.com/icon/cGcRDueIKQkF/task">заметки</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
