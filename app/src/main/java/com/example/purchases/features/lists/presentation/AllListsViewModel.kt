@@ -2,10 +2,9 @@ package com.example.purchases.features.lists.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purchases.R
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
 import com.example.purchases.data.repository.ShoppingRepository
-import com.example.purchases.features.ui.components.ShoppingList
+import com.example.purchases.data.database.entity.ShoppingList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class AllListsViewModel @Inject constructor(
     private val repository: ShoppingRepository
 ) : ViewModel() {
 

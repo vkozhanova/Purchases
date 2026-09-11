@@ -2,7 +2,6 @@ package com.example.purchases.features.items.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purchases.R
 import com.example.purchases.features.items.presentation.model.ShoppingItemsUiState
 import com.example.purchases.data.repository.ShoppingRepository
 import com.example.purchases.data.database.entity.ShoppingItem
@@ -12,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class ShoppingListViewModel(
+class ShoppingItemsViewModel(
     private val repository: ShoppingRepository,
     private val listId: Int
 ): ViewModel() {

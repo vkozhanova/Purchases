@@ -28,7 +28,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalCoroutinesApi::class)
 class ShoppingListViewModelTest {
     private lateinit var repository: ShoppingRepository
-    private lateinit var viewModel: ShoppingListViewModel
+    private lateinit var viewModel: ShoppingItemsViewModel
     private val testListId = 1
 
     @Before
@@ -52,7 +52,7 @@ class ShoppingListViewModelTest {
 
         coEvery { repository.getItemsForList(testListId) } returns flowOf(items)
 
-        viewModel = ShoppingListViewModel(repository, testListId)
+        viewModel = ShoppingItemsViewModel(repository, testListId)
         advanceUntilIdle()
 
         assertFalse(viewModel.uiState.value.isLoading)
@@ -67,7 +67,7 @@ class ShoppingListViewModelTest {
             emit(emptyList())
         }
 
-        viewModel = ShoppingListViewModel(repository, testListId)
+        viewModel = ShoppingItemsViewModel(repository, testListId)
 
         assertTrue(viewModel.uiState.value.isLoading)
 
@@ -82,7 +82,7 @@ class ShoppingListViewModelTest {
             throw Exception(errorMessage)
         }
 
-        viewModel = ShoppingListViewModel(repository, testListId)
+        viewModel = ShoppingItemsViewModel(repository, testListId)
         advanceUntilIdle()
 
         assertFalse(viewModel.uiState.value.isLoading)
@@ -96,7 +96,7 @@ class ShoppingListViewModelTest {
         coEvery { repository.getItemsForList(testListId) } returns flowOf(emptyList())
         coEvery { repository.insertItem(any()) } returns Unit
 
-        viewModel = ShoppingListViewModel(repository, testListId)
+        viewModel = ShoppingItemsViewModel(repository, testListId)
         viewModel.addItem(itemName)
         advanceUntilIdle()
 
@@ -112,7 +112,7 @@ class ShoppingListViewModelTest {
         coEvery { repository.getItemsForList(testListId) } returns flowOf(emptyList())
         coEvery { repository.insertItem(any()) } returns Unit
 
-        viewModel = ShoppingListViewModel(repository, testListId)
+        viewModel = ShoppingItemsViewModel(repository, testListId)
         viewModel.addItem("")
         advanceUntilIdle()
 
@@ -125,7 +125,7 @@ class ShoppingListViewModelTest {
         coEvery { repository.getItemsForList(testListId) } returns flowOf(emptyList())
         coEvery { repository.deleteItem(item) } returns Unit
 
-        viewModel =  ShoppingListViewModel(repository, testListId)
+        viewModel =  ShoppingItemsViewModel(repository, testListId)
         viewModel.deleteItem(item)
         advanceUntilIdle()
 
@@ -138,7 +138,7 @@ class ShoppingListViewModelTest {
         coEvery { repository.getItemsForList(testListId) } returns flowOf(emptyList())
         coEvery { repository.insertItem(any()) } returns Unit
 
-        viewModel =  ShoppingListViewModel(repository, testListId)
+        viewModel =  ShoppingItemsViewModel(repository, testListId)
         viewModel.copyItem(origItem)
         advanceUntilIdle()
 
@@ -153,7 +153,7 @@ class ShoppingListViewModelTest {
         coEvery { repository.getItemsForList(testListId) } returns flowOf(emptyList())
         coEvery { repository.insertItem(any()) } returns Unit
 
-        viewModel = ShoppingListViewModel(repository, testListId)
+        viewModel = ShoppingItemsViewModel(repository, testListId)
         viewModel.copyItem(originalItem)
         advanceUntilIdle()
 
@@ -172,7 +172,7 @@ class ShoppingListViewModelTest {
         coEvery { repository.getItemsForList(testListId) } returns flowOf(emptyList())
         coEvery { repository.updateItem(any()) } returns Unit
 
-        viewModel = ShoppingListViewModel(repository, testListId)
+        viewModel = ShoppingItemsViewModel(repository, testListId)
         viewModel.toggleChecked(item)
         advanceUntilIdle()
 

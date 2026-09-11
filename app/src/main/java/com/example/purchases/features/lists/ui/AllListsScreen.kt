@@ -33,8 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.purchases.features.ui.components.ShoppingList
-import com.example.purchases.features.lists.presentation.MainViewModel
+import com.example.purchases.data.database.entity.ShoppingList
+import com.example.purchases.features.lists.presentation.AllListsViewModel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -56,10 +56,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.purchases.R
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
 import com.example.purchases.ui.theme.PurchaseAppTheme
@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AllListsScreen(
-    viewModel: MainViewModel,
+    viewModel: AllListsViewModel,
     onListClick: (ShoppingList) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -183,6 +183,7 @@ fun AllListsScreenContent(
                     onValueChange = onSearchQueryChange,
                     placeholder = { Text(stringResource(R.string.search_string)) },
                     singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { onSearchQueryChange("") },
@@ -204,9 +205,9 @@ fun AllListsScreenContent(
                         unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
 
-                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-                        disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
 
                         focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
                         unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),

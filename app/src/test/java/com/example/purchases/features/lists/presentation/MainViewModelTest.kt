@@ -2,7 +2,7 @@ package com.example.purchases.features.lists.presentation
 
 import com.example.purchases.data.database.entity.ShoppingItem
 import com.example.purchases.data.repository.ShoppingRepository
-import com.example.purchases.features.ui.components.ShoppingList
+import com.example.purchases.data.database.entity.ShoppingList
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -28,7 +28,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
     private lateinit var repository: ShoppingRepository
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: AllListsViewModel
 
     @Before
     fun setup() {
@@ -49,7 +49,7 @@ class MainViewModelTest {
             throw Exception(errorMessage)
         }
 
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         advanceUntilIdle()
 
         assertEquals(errorMessage, viewModel.uiState.value.error)
@@ -65,7 +65,7 @@ class MainViewModelTest {
 
         coEvery { repository.getAllLists() } returns flowOf(mockLists)
 
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         advanceUntilIdle()
 
         assertEquals(mockLists, viewModel.allLists.value)
@@ -83,7 +83,7 @@ class MainViewModelTest {
         )
 
         coEvery { repository.getAllLists() } returns flowOf(mockLists)
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         advanceUntilIdle()
 
         assertEquals(3, viewModel.allLists.value.size)
@@ -100,7 +100,7 @@ class MainViewModelTest {
         coEvery { repository.getAllLists() } returns flowOf(emptyList())
         coEvery { repository.deleteList(list) } returns Unit
 
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         viewModel.deleteList(list)
 
         coVerify { repository.deleteList(list) }
@@ -119,7 +119,7 @@ class MainViewModelTest {
         coEvery { repository.getItemsForList(1) } returns flowOf(items)
         coEvery { repository.insertItem(any()) } returns Unit
 
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         viewModel.copyList(originalList)
         advanceUntilIdle()
 
@@ -136,7 +136,7 @@ class MainViewModelTest {
         coEvery { repository.getAllLists() } returns flowOf(emptyList())
         coEvery { repository.insertList(any()) } returns 1L
 
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         viewModel.createNewList()
 
         coVerify {
@@ -154,7 +154,7 @@ class MainViewModelTest {
         coEvery { repository.getAllLists() } returns flowOf(emptyList())
         coEvery { repository.insertList(any()) } returns 1L
 
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         viewModel.renameList(list, newName)
 
         coVerify {
@@ -172,7 +172,7 @@ class MainViewModelTest {
         coEvery { repository.insertList(any()) } returns 2
         coEvery { repository.getItemsForList(1) } returns flowOf(emptyList())
 
-        viewModel = MainViewModel(repository)
+        viewModel = AllListsViewModel(repository)
         viewModel.copyList(origList)
         advanceUntilIdle()
 

@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.purchases.features.ui.components.ShoppingList
+import com.example.purchases.data.database.entity.ShoppingList
 import kotlinx.coroutines.flow.Flow
 
 @Dao

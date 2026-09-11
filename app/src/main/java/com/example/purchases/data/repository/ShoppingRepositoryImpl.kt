@@ -3,7 +3,7 @@ package com.example.purchases.data.repository
 import com.example.purchases.data.database.dao.ShoppingItemDao
 import com.example.purchases.data.database.dao.ShoppingListDao
 import com.example.purchases.data.database.entity.ShoppingItem
-import com.example.purchases.features.ui.components.ShoppingList
+import com.example.purchases.data.database.entity.ShoppingList
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

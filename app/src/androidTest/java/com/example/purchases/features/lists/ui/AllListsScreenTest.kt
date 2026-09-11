@@ -13,7 +13,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.longClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.purchases.features.lists.presentation.model.ShoppingListsUiState
-import com.example.purchases.features.ui.components.ShoppingList
+import com.example.purchases.data.database.entity.ShoppingList
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
