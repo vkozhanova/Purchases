@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.capturable)
     implementation(libs.compose.to.pdf)
     implementation(libs.androidx.foundation)

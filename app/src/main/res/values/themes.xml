@@ -3,4 +3,9 @@
 
     <style name="Base.Theme.Purchases" parent="Theme.AppCompat.Light.NoActionBar" />
     <style name="Theme.Purchases" parent="Base.Theme.Purchases" />
+    <style name="Theme.Purchases.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Purchases</item>
+    </style>
 </resources>
